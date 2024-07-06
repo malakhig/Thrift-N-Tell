@@ -1,0 +1,71 @@
+<div class="container text-center">
+  <h1>Search by Username</h1>
+
+  <%= form_tag root_path, method: 'get', class: "mb-3" do %>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="input-group">
+        <%= text_field_tag :search, params[:search], class: "form-control rounded-right", placeholder: "Username", style: "text-align: center;", id: "search-input" %>
+      </div>
+      <%= submit_tag "Search", class: "btn" %>
+    </div>
+  </div>
+  <% end %>
+  <br/>
+
+  <% @users.each do |user| %>
+  <% if current_user != user %>
+  <div class="mb-3">
+    <%= link_to avatar_for(user, 100), profile_path(user) %>
+    <%= link_to user.username, profile_path(user), style: "text-decoration: none; color: white" %>
+  </div>
+  <% end %>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+
+    if (searchInput) {
+      // When the input is focused, remove the placeholder
+      searchInput.addEventListener('focus', function() {
+        searchInput.removeAttribute('placeholder');
+      });
+
+      // When the input is blurred and empty, add the placeholder back
+      searchInput.addEventListener('blur', function() {
+        if (!searchInput.value) {
+          searchInput.setAttribute('placeholder', 'Search by username');
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .btn:hover {
+    background-color: #5e6681;
+    color: #ffeba7;
+    box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+  } 
+  .btn {
+    margin: 1rem 0;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: .8em;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+    background-color: #ffeba7;
+    color: #5e6681;
+    box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+    transition: all .3s ease-in-out;
+  }
+  .btn-link {
+    color: #f5f5f5;
+    display: block;
+    font-size: .75em;
+    transition: color .3s ease-out;
+  }
+</style>

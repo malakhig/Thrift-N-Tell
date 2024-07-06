@@ -1,0 +1,49 @@
+<% if post.nil? %>
+  <p>Post is nil! _like_link</p>
+<% else %>
+  <% if current_user.nil? %>
+    <p> <% vote_text = "Like" %></p>
+     <%= button_to vote_text, new_user_session_path, class:'btn' %>
+  <% else %>
+   
+    <% vote_text = current_user&.voted_for?(post) ? "Unlike" : "Like" %>
+    <%= button_to vote_text, like_post_path(post), method: :put, remote: true, id: 'like-link', class: 'like-post btn' %>
+  <% end %>
+<% end %>
+
+<style>
+  .btn:hover {
+    background-color: #5e6681;
+    color: #ffeba7;
+    box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+  } 
+  .btn {
+    margin: 1rem 0;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: .8em;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+    background-color: #ffeba7;
+    color: #5e6681;
+    box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+    transition: all .3s ease-in-out;
+  }
+  .btn-link {
+    color: #f5f5f5;
+    display: block;
+    font-size: .75em;
+    transition: color .3s ease-out;
+  }
+
+</style>
+
+<script>
+  var likeButton = document.getElementById('like-button');
+if (<%= @liked %> === true) {
+  likeButton.innerText = 'Unlike';
+} else {
+  likeButton.innerText = 'Like';
+}
+</script>

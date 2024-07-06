@@ -1,0 +1,2 @@
+module RequestThriftHelper
+end

@@ -1,0 +1,24 @@
+<%= form_with(model: [post, post.comments.build], local: true) do |f| %>
+  <div class="form-group">
+    Comment on this post
+    <%= f.text_area :body, class: "form-control custom-textarea" %>
+    <br>
+    <%= f.submit "Comment", class: "btn btn-primary mt-1" %>
+  </div>
+<% end %>
+
+<style>
+.custom-textarea {
+  background-color: #333; /* Background color */
+  color: green;              /* Text color */
+  border: 1px solid #555;    /* Optional: Border color */
+  padding: 10px;             /* Optional: Padding */
+  border-radius: 4px;        /* Optional: Border radius */
+}
+.custom-textarea:focus {
+  background-color: #444; /* Background color when focused */
+  color: #fff;            /* Text color when focused */
+  border: #333; /* Border color when focused */
+  outline: none;          /* Remove default focus outline */
+}
+</style>

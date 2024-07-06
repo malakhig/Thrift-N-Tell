@@ -1,0 +1,258 @@
+
+
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.getElementById('autocomplete');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+
+             document.getElementById('clear-location-btn').addEventListener('click', function() {
+                document.getElementById('autocomplete').value = '';
+            });
+
+            // If you want to bind to bounds or add any more functionality, you can do it here
+            // Example: autocomplete.bindTo('bounds', map);
+        });
+         document.addEventListener('DOMContentLoaded', function() {
+    // Simulate loading delay
+    setTimeout(function() {
+      document.getElementById('spinner-container').style.display = 'none';
+      // Display the thrifts container after delay
+      document.getElementById('thrifts-container').style.display = 'block';
+    }, 1000); // 3000 milliseconds = 3 seconds
+  });
+    </script>
+
+
+
+
+<div class="container ">
+  <div class="  row ">
+    <div class="col align-self-start">
+      <h1>Thrifts</h1>
+    </div>
+    <div class="col align-self-end text-end">
+      <%= link_to "Add Thrift", new_thrift_path, class:"btn btn-primary" %>
+      <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#Requestmodal">
+  Request a Thrift
+</button>
+
+    </div>
+  </div>
+</div>
+<hr/>
+
+   <div class="container">
+        <div class="row align-items-start">
+            <div class="col">
+                <%= form_tag thrifts_path, method: 'get', local: true, data: {controller: "places", action: "google-maps-callback@window->places#initMap"} do %>
+                    <div class="mb-3">
+                        <%= text_field_tag :search, params[:search], placeholder: "Search by store", class: 'form-control' %>
+                    </div>
+                    <div class="mb-3">
+                        <%= search_field_tag :search_location, params[:search_location], id: 'autocomplete', placeholder: "Location", class: 'form-control' %>
+                    </div>
+                    <div class="mb-3">
+                        <%= select_tag :distance, options_for_select([['Distance from Location', nil], ["10 Miles", 8], ["25 Miles", 22], ["50 Miles", 42], ["100 Miles", 85], ["200 Miles", 180]], selected: params[:distance]), class: 'form-select' %>
+                    </div>
+                    <%= submit_tag "Apply", class: "btn btn-primary" %>
+                <% end %>
+            </div>
+        </div>
+    </div>
+
+ <br>
+ <br> 
+
+  <div class="container">
+  <div class="row align-items-center" id="spinner-container">
+    <div class="col-4">
+      <i class="fas fa-spinner fa-spin text-4xl mr-2"></i>
+      <span>Loading Thrifts...</span>
+    </div>
+  </div>
+
+ <div id="thrifts-container" style="display: none;">
+      <div class="container">
+  <% @thrifts.each_slice(3) do |thrift_group| %>
+    <div class="row justify-content-center mb-4 no-gutters">
+      <% thrift_group.each do |thrift| %>
+        <div class="col-4">
+          <div class="card text-center">
+            <% if thrift.images.attached? %>
+              <% cover_image = thrift.images.first %>
+              <%= image_tag(cover_image, class: "card-img-top img-fluid", style: "height: auto; max-width: 100%;") %>
+            <% end %>
+            <div class="card-img-overlay text-white d-flex flex-column justify-content-end">
+              <h5 class="card-title"> <%= thrift.store %></h5>
+              <p class="card-text"><%= "#{thrift.city}, #{thrift.state}" %></p>
+               <button type="button" class="btn btn-outline-light btn-details stretched-link" data-bs-toggle="modal" data-bs-target="#exampleModal<%= thrift.id %>">
+                Details
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- Modal for each thrift -->
+        <div class="modal fade" id="exampleModal<%= thrift.id %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"><%= thrift.store %></h1>
+              </div>
+              <div class="modal-body">
+                <%= render 'thrift', thrift: thrift %>
+              </div>
+              <div class="modal-footer ">
+                <ul>
+                <!--<%= link_to "Back", thrifts_path, class: "btn btn-dark " %>-->
+              </ul>
+              <ul>
+                <%= link_to "Continue", thrift_path(thrift), class: "btn btn-primary" %>
+              </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+
+
+
+<!-- request modal-->
+<div class="modal fade" id="Requestmodal" tabindex="-1" aria-labelledby="RequestmodalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Request a Thrift</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: send_request_path, method: :post, local: true do |form| %>
+          <div class="mb-3">
+            <%= form.label :store, "Store", style: "display: block;" %>
+            <%= form.text_field :store, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :address, "Address", style: "display: block;" %>
+            <%= form.text_field :address, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :city, "City", style: "display: block;" %>
+            <%= form.text_field :city, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :state, "State" %>
+            <%= form.select :state, options_for_select([['Select a state', ''], ['Alabama', 'AL'], ['Alaska', 'AK']]), {}, class: "form-select" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :comments, "Additional Comments (optional)", style: "display: block;" %>
+            <%= form.text_field :comments, class: "form-control" %>
+          </div>
+
+          <div class="modal-footer">
+            <%= form.submit "Send Request", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- css to make cards zoom when hovering-->
+<style>
+  .card:hover img {
+    filter: blur(1.5px); /* Adjust blur radius as needed */
+  }
+  .card:hover .card-text, .card:hover .card-title {
+    font-size: 1.75em; /* Adjust font size as needed */
+    transition: font-size .001s ;
+    
+  }
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+  .card {
+    transition: transform .3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+body.dark-mode .modal {
+  background-color: none; /* Dark background color */
+  color: white;           /* Light text color */
+  border: 1px solid #444; /* Border color */
+}
+
+/* Optional: Additional styles to improve appearance in dark mode */
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  background-color: #444; /* Slightly lighter background for header and footer */
+  border-bottom: 1px solid #555; /* Header border */
+  border-top: 1px solid #555;    /* Footer border */
+}
+
+body.dark-mode .modal-content {
+  background-color: #333; /* Ensuring modal content has a dark background */
+}
+
+body.dark-mode .modal-body {
+  color: white; /* Ensuring modal body text is light */
+}
+.btn:hover {
+    background-color: #5e6681;
+    color: #ffeba7;
+    box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+  } 
+  .btn {
+    margin: 1rem 0;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: .8em;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+    background-color: #ffeba7;
+    color: #5e6681;
+    box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+    transition: all .3s ease-in-out;
+  }
+  .btn-link {
+    color: #f5f5f5;
+    display: block;
+    font-size: .75em;
+    transition: color .3s ease-out;
+  }
+
+  /* Exclude the button from hover effects */
+   .btn-details {
+    background-color: transparent; /* Set initial background color to transparent */
+    color: white; /* Set text color to white */
+    border: 1px solid white; /* Add border for visibility */
+    transition: background-color 0.3s; /* Add transition for smooth color change */
+  }
+
+  /* Define hover effect */
+  .btn-details:hover {
+    background-color: white; /* Change background color to white on hover */
+    color: black; /* Change text color to black on hover */
+  }
+
+</style>
+    </div>
+  
+
+

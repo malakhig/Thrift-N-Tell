@@ -1,0 +1,6 @@
+ <% if comment.nil? %>
+  <p>Comment is nil!</p>
+<% else %>
+  <p id="like-count-<%= comment.id %>"><%= pluralize(comment.get_upvotes.size, 'Like') %></p>
+  <%end%>
+  

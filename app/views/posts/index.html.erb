@@ -1,0 +1,262 @@
+<div class="container">
+  <div class="row ">
+    <div class="col">
+      <h1>Finds</h1>
+    </div>
+    <div class="col align-self-end text-end">
+      <%= button_to "+", new_post_path, class: "btn", :method => :get  %>
+    </div>
+  </div>
+</div>
+<hr/>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+        <%= form_tag posts_path, method: 'get' do %>
+        <%= text_field_tag :search, params[:search], placeholder: "Search for finds", class: 'form-control' %>
+        <div class="col">
+        <%= submit_tag "Search", class: 'btn' %>
+        <%end%>
+      </div>
+      </div>
+    </div>
+  </div>
+
+
+<br/>
+<div class="container">
+  <div id="posts">
+    <% @posts.each_slice(2) do |post_group| %>
+      <div class="row justify-content-center mb-4 no-gutters">
+        <% post_group.each do |post| %>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card position-relative" style="margin-bottom: 10px;">
+              <div class="card-body">
+                <div id="<%= dom_id(post) %>">
+                  <p>
+                    <strong>
+                      <%= link_to avatar_for(User.find(post.user_id), 50), profile_path(post.user) %>
+                      <%= link_to post.user.username, profile_path(post.user), class: "profile-link" %>
+                    </strong>
+                  </p>
+
+                  <% if post.images.attached? %>
+                    <% cover_image = post.images.first %>
+                    <div class="image-container position-relative">
+                      <% if current_user %>
+                      <%= link_to image_tag(cover_image, class: "img-fluid d-block rounded", style: "height: 525px; width: 100%; object-fit: cover;"), post_path(post) %>
+                      <%else %>
+                      <%= link_to image_tag(cover_image, class: "img-fluid d-block rounded", style: "height: 525px; width: 100%; object-fit: cover;"), new_user_session_path %>
+                      <%end %>
+                      <div class="position-absolute top-0 start-0 p-2 text-transparent size-overlay">
+                       <%= post.size %>
+                      </div>
+                      <% if post.images.size > 1 %>
+                      <div class="position-absolute top-0 end-0 p-2 size-overlay">
+                     <%= image_tag "multiple-images.png", width: 20, height: 20 %>
+                    </div>
+                    <%end%>
+
+                    </div>
+                  <% end %>
+
+                  <p class="mt-3">
+                    <strong><%= post.user.username%></strong> <%= post.content %>
+                  </p>
+                  <p>
+                    <strong>Purchased?</strong>
+                    <%= post.purchased ? "Yes" : "No" %>
+                  </p>
+                  <p>
+                   <strong>Found at:</strong> <%= link_to post.thrift.store, thrift_path(post.thrift_id), class: "hover-underline" %>
+                  </p>
+                </div>
+                <div class="like-container" style="display: flex; align-items: center;">
+                  <div id="like-count" style="margin-right: 10px;">
+                    <% if post.nil? %>
+                    <p>Post is nil!</p>
+                    <% else %>
+                    <%=  pluralize(post.get_upvotes.size, 'Like') %>
+                    <% end %>
+                  </div>
+                  <div id="like-link">
+                    <%= render 'posts/like_link', post: post %>
+                  </div>
+                </div>
+
+                <br>
+                <!--<p>
+                  <%= link_to "Show this Find", post_path(post), class: "btn btn-primary" %>
+                </p>-->
+              </div>
+              <div class="card-footer">
+                <p class="mb-0">
+                  <%= post.created_at.strftime("%m/%d/%Y") %>
+                </p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+
+
+
+
+
+<style>
+  .button {
+  --main-focus: #2d8cf0;
+  --font-color: #323232;
+  --bg-color-sub: #dedede;
+  --bg-color: #eee;
+  --main-color: #323232;
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--main-color);
+  box-shadow: 4px 4px var(--main-color);
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.button, .button__icon, .button__text {
+  transition: all 0.3s;
+}
+
+.button .button__text {
+  transform: translateX(1px);
+  color: var(--font-color);
+  font-weight: 1;
+}
+
+.button .button__icon {
+  position: absolute;
+  transform: translateX(109px);
+  height: 100%;
+  width: 39px;
+  background-color: var(--bg-color-sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.button .svg {
+  width: 20px;
+  fill: var(--main-color);
+}
+.button:hover {
+  background: var(--bg-color);
+}
+
+.button:hover .button__text {
+  color: transparent;
+}
+
+.button:hover .button__icon {
+  width: 148px;
+  transform: translateX(0);
+}
+.button:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px var(--main-color);
+}
+  .card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+.card {
+  transition: transform .25s;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+body.dark-mode .card {
+  background-color: #333;
+  color: white;
+  border: 1px solid #444;
+}
+.card-footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: none;
+  border-top: none;
+  padding: 1;
+}
+.card-footer p {
+  margin: 0;
+}
+.size-overlay {
+    color: white; /* Set text color to white */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black; /* Add a text shadow for better readability */
+  }
+  .btn:hover {
+    background-color: #5e6681;
+    color: #ffeba7;
+    box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+  } 
+  .btn {
+    margin: 1rem 0;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: .8em;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+    background-color: #ffeba7;
+    color: #5e6681;
+    box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+    transition: all .3s ease-in-out;
+  }
+  .btn-link {
+    color: #f5f5f5;
+    display: block;
+    font-size: .75em;
+    transition: color .3s ease-out;
+  }
+.hover-underline {
+    color: white;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  .hover-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    display: block;
+    margin-top: 0px;
+    left: 0;
+    background: white;
+    transition: width 0.3s ease;
+  }
+  .hover-underline:hover::after {
+    width: 100%;
+  }
+ .light-mode .profile-link {
+  color: black !important; /* Use !important to override other styles */
+  text-decoration: none !important;
+}
+
+/* Dark mode */
+.dark-mode .profile-link {
+  color: white !important; /* Use !important to override other styles */
+  text-decoration: none !important;
+}
+
+/* Optional: Hover styles for better user experience */
+.light-mode .profile-link:hover,
+.dark-mode .profile-link:hover {
+  text-decoration: underline !important;
+}
+</style>
+

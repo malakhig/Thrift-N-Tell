@@ -1,0 +1,6 @@
+<% if current_user.voted_for?(@comment) %>
+  $("#like-link-<%= @comment.id %>").html("Unlike");
+<% else %>
+  $("#like-link-<%= @comment.id %>").html("Like");
+<% end %>
+$("#like-count-<%= @comment.id %>").html("<%= pluralize(@comment.get_upvotes.size, 'Like') %>");

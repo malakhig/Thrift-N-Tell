@@ -1,0 +1,468 @@
+<% if current_user == @user %>
+<%= link_to "Add Friends", root_path, class:"btn btn-outline-primary" %>
+<%end%>
+
+
+<h1 > <%= @user.username %></h1>
+<% if current_user == @user %>
+<button class="bell_button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNotifications">
+   <svg viewBox="0 0 448 512" class="bell"><path d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"></path></svg>
+
+</button>
+<%end%>
+<br>
+<br>
+
+<div class="container start">
+  <div class="row align-items-center">
+    <div class="col">
+     <%= avatar_for(@user, 120) %>
+   </div>
+   <div class="col">
+     <div><%= @user.posts.count %> 
+      <% if @user.posts.count != 1 %> 
+      finds
+      <% else %>
+      find
+      <%end%></div>
+    </div>
+    <div class="col">
+      <button type="button" class="btn btn-outline-light " data-bs-toggle="modal" data-bs-target="#FollowerModal<%= @user.id %>">
+     <div><%= @user.followers.count %>
+      <% if @user.followers.count != 1 %> 
+      followers
+      <% else %>
+      follower
+      <%end%>
+    </div> 
+  </div>
+  </button>
+  <div class="col">
+     <button type="button" class="btn btn-outline-light " data-bs-toggle="modal" data-bs-target="#FollowingModal<%= @user.id %>">
+   <div><%= @user.following.count %> following</div>
+ </div>
+</div>
+</button>
+</div>
+<br>
+
+<div style =" margin-left: 32px;">
+  <% if current_user != @user %>
+  <% if current_user.following?(@user)%>
+  <%= button_to "Unfollow", unfollow_path(@user), class:"btn btn-outline-primary" %>
+  <% elsif current_user.sent_follow_request_to?(@user)%>
+  <%= button_to "Cancel follow request", cancel_path(@user), class:"btn btn-outline-primary"%>
+  <% else %>
+  <%= button_to "Follow", follow_path(@user), class:"btn btn-outline-primary"%>
+  <%end%>
+  <%end%>
+</div>
+
+<hr/>
+
+
+<!--Big card option-->
+<div class="container">
+  <div id="posts">
+    <% user_posts = @posts.select { |post| post.user_id == @user.id } %>
+    <% user_posts.each_slice(2) do |post_group| %>
+      <div class="row justify-content-center mb-4 ">
+        <% post_group.each do |post| %>
+          <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <div class="card rounded " style="margin-bottom: 10px;">
+              <div class="card-body" style="padding: 0;">
+                <div id="<%= dom_id(post) %>">
+                  <% if post.images.attached? %>
+                    <% cover_image = post.images.first %>
+                    <div class="image-container position-relative">
+                      <% if current_user %>
+                        <%= link_to image_tag(cover_image, class: "img-fluid d-block rounded-top", style: "height: 525px; width: 100%; object-fit: cover;"), post_path(post) %>
+                      <% else %>
+                        <%= link_to image_tag(cover_image, class: "img-fluid d-block rounded-top", style: "height: 525px; width: 100%; object-fit: cover;"), new_user_session_path %>
+                      <% end %>
+                      <div class="position-absolute top-0 start-0 p-2 text-transparent size-overlay">
+                        <%= post.size %>
+                      </div>
+                       <% if post.images.size > 1 %>
+                      <div class="position-absolute top-0 end-0 p-2 size-overlay">
+                     <%= image_tag "multiple-images.png", width: 20, height: 20 %>
+                    </div>
+                    <%end%>
+                    </div>
+                  <% end %>
+                  <p class="mt-3" style="margin-left: 10px;">
+                    <strong><%= @user.username %></strong> <%= post.content %>
+                  </p>
+                  <p style="margin-left: 10px;">
+                    <strong>Purchased?</strong>
+                    <%= post.purchased ? "Yes" : "No" %>
+                  </p>
+                  <p style="margin-left: 10px;">
+                    <strong>Found at:</strong> <%= link_to post.thrift.store, thrift_path(post.thrift_id), class: "hover-underline" %>
+                  </p>
+                </div>
+                <div class="container">
+                  <div class="row justify-content-start">
+                    <div class="like-container" style="display: flex; align-items: center;">
+                      <div id="like-count" style="margin-right: 10px;">
+                         <% if post.nil? %>
+                         <p>Post is nil!</p>
+                         <% else %>
+                         <%= link_to pluralize(post.get_upvotes.size, 'Like'), post_path(post), style:"color: white; text-decoration: none;" %>
+                         <% end %>
+                      </div>
+                      <div id="like-link">
+                        <%= render 'posts/like_link', post: post %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <p class="mb-0">
+                    <%= post.created_at.strftime("%m/%d/%Y") %>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!--Small card option
+    <div class="container">
+      <h2>Finds</h2>
+      <br>
+      <% user_posts = @posts.select { |post| post.user_id == @user.id } %>
+      <% user_posts.each_slice(2) do |post_group| %>
+      <div class="row ">
+        <% post_group.each do |post| %>
+        <div class="col-12 col-md-2 mb-4 custom-col">
+          <div class="card">
+            <% if post.images.attached? %>
+            <% cover_image = post.images.first %>
+            <%= link_to image_tag(cover_image, class: "card-img-top", style: "height: 300px; object-fit: cover;"), post_path(post) %>
+            <% end %>
+            <div class="card-body">
+              <h5 class="card-title"><%= post.content %></h5>
+              <p class="card-text"><%= post.created_at.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+        </div>
+        <% end %>
+      </div>
+      <% end %>
+    </div>-->
+
+
+    
+ <!-- Modal for each follower -->
+        <div class="modal fade" id="FollowerModal<%= @user.id %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Followers</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body modal-body-scrollable">
+        <% @user.followers.each do |user| %>
+          <%= link_to avatar_for(user, 55), profile_path(user) %>
+          <%= link_to user.username, profile_path(user), style: "color: white; text-decoration: none;" %>
+          <br><br>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <!--<%= link_to "Back", profile_path(@user), class: "btn btn-dark " %>-->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal for each following -->
+      <div class="modal fade" id="FollowingModal<%= @user.id %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+    <div class="modal-content">
+      <div class="modal-header">
+        Following
+      </div>
+      <div class="modal-body modal-body-scrollable">
+        <% @user.following.each do |user| %>
+          <div class="d-flex align-items-center mb-3">
+            <%= link_to avatar_for(user, 55), profile_path(user)%>
+            <div class="d-flex flex-grow-1 justify-content-between align-items-center">
+              <%= link_to user.username, profile_path(user), style: "color: white; text-decoration: none;" %>
+              <%= button_to "Unfollow", unfollow_path(user), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: 'Are you sure?' } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <!--<%= link_to "Back", profile_path(@user), class: "btn btn-dark" %>-->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- offcanvas for notifications-->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNotifications" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Notifications</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+  <div id="notifications">
+    <hr/>
+  <% if user_signed_in? %>
+    <% current_user.follow_requests.each do |request| %>
+      <p>
+        <%= request.followerable.username %> wants to follow you
+        <%= button_to "Accept", accept_path(request.followerable), class:"btn btn-outline-primary" %>
+        <%= button_to "Decline", decline_path(request.followerable), class:"btn btn-outline-primary" %>
+      </p>
+    <% end %>
+    <% current_user.notifications.reverse.each do |notification| %>
+      <% if notification.message != "{deleted}" %>
+        <div class="notification d-flex align-items-start mb-2">
+          <div class="flex-grow-1 offcanvas-body">
+            <%= link_to notification.username, profile_path(notification.user_object), class:"profile-link" %>
+            <%= notification.message %>
+            <p class="text-muted small mb-0" style = "color:grey !important;"><%= time_ago_in_words(notification.created_at) %> ago</p>
+          </div>
+          <%= link_to thumbnail(notification.thumbnail, size: 50), notification.url %>
+        </div>
+        <br>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
+  </div>
+</div>
+
+    <style>
+      .modal-body-scrollable {
+        max-height: 275px; /* Adjust height as needed */
+        overflow-y: auto;
+      }
+      .notification .text-muted {
+        font-size: 0.85em;
+        color: #6c757d;
+      }
+      hr {
+        height: 1px;
+        color: white;
+        background-color: white;
+        border: none;
+      }
+
+      .button {
+        --main-focus: #2d8cf0;
+        --font-color: #323232;
+        --bg-color-sub: #dedede;
+        --bg-color: #eee;
+        --main-color: #323232;
+        position: relative;
+        width: 150px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        border: 2px solid var(--main-color);
+        box-shadow: 4px 4px var(--main-color);
+        background-color: var(--bg-color);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .button, .button__icon, .button__text {
+        transition: all 0.3s;
+      }
+
+      .button .button__text {
+        transform: translateX(1px);
+        color: var(--font-color);
+        font-weight: 1;
+      }
+
+      .button .button__icon {
+        position: absolute;
+        transform: translateX(109px);
+        height: 100%;
+        width: 39px;
+        background-color: var(--bg-color-sub);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+.hover-underline {
+    color: white;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  .hover-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    display: block;
+    margin-top: 0px;
+    left: 0;
+    background: white;
+    transition: width 0.3s ease;
+  }
+  .hover-underline:hover::after {
+    width: 100%;
+  }
+
+      .button .svg {
+        width: 20px;
+        fill: var(--main-color);
+      }
+
+      .button:hover {
+        background: var(--bg-color);
+      }
+
+      .button:hover .button__text {
+        color: transparent;
+      }
+
+      .button:hover .button__icon {
+        width: 148px;
+        transform: translateX(0);
+      }
+
+      .button:active {
+        transform: translate(3px, 3px);
+        box-shadow: 0px 0px var(--main-color);
+      }
+      .card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      }
+      .card {
+        transition: transform .35s;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+      .card-footer {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: none;
+        border-top: none;
+        padding: 1;
+      }
+      .card-footer p {
+        margin: 0;
+      }
+      .size-overlay {
+        color: white; /* Set text color to white */
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black; /* Add a text shadow for better readability */
+      }
+      body.dark-mode .modal {
+        background-color: none; /* Dark background color */
+        color: white;           /* Light text color */
+        border: 1px solid #444; /* Border color */
+      }
+
+/* Optional: Additional styles to improve appearance in dark mode */
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  background-color: #444; /* Slightly lighter background for header and footer */
+  border-bottom: 1px solid #555; /* Header border */
+  border-top: 1px solid #555;    /* Footer border */
+}
+
+body.dark-mode .modal-content {
+  background-color: #333; /* Ensuring modal content has a dark background */
+}
+
+body.dark-mode .modal-body {
+  color: white; /* Ensuring modal body text is light */
+}
+
+.dark-mode .offcanvas-body {
+  background-color: #333;
+}
+.dark-mode .offcanvas-header {
+  background-color: #333;
+}
+.dark-mode .offcanvas-title {
+  color: #ffffff;
+}
+
+.bell_button {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  border-radius: 50%;
+  cursor: pointer;
+  transition-duration: .3s;
+  border: none;
+}
+
+.dark-mode .bell_button {
+   width: 50px;
+  height: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition-duration: .3s;
+  border: none;
+}
+
+.bell {
+  width: 18px;
+}
+
+.bell path {
+  fill: white;
+}
+
+.bell_button:hover {
+  background-color: rgb(56, 56, 56);
+}
+
+.bell_button:hover .bell {
+  animation: bellRing 0.9s both;
+}
+
+.bell_button:active {
+  transform: scale(0.8);
+}
+.light-mode .offcanvas-body {
+  color: black !important; /* Use !important to override other styles */
+  text-decoration: none !important;
+}
+
+/* Dark mode */
+.dark-mode .offcanvas-body {
+  color: white !important; /* Use !important to override other styles */
+  text-decoration: none !important;
+}
+.light-mode .profile-link {
+  color: black !important; /* Use !important to override other styles */
+  text-decoration: none !important;
+}
+
+/* Dark mode */
+.dark-mode .profile-link {
+  color: white !important; /* Use !important to override other styles */
+  text-decoration: none !important;
+}
+    </style>
+
+    

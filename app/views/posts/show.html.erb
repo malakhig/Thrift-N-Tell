@@ -1,0 +1,22 @@
+<% if current_user%>
+<%= link_to 'Back', 'javascript:history.back()', class: 'btn btn-dark' %>
+<div class="container mt-4">
+  <% if notice %>
+    <p class="text-success"><%= notice %></p>
+  <% end %>
+
+ 
+      <%= render @post %>
+    
+  <div class="d-flex justify-content-between align-items-center">
+    <!--<% if @post.user_id == current_user.id %>
+    <%= link_to "Edit this post", edit_post_path(@post), class: "btn btn-secondary" %>
+    <%= button_to "Delete this post", @post, method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } %>
+    <% end %>-->
+    
+  </div>
+</div>
+<br>
+<% else %>
+<%=  redirect_to new_user_session_path %>
+<%end%>

@@ -1,0 +1,120 @@
+
+<%= link_to "Back to Thrifts", thrifts_path, class: 'btn btn-dark' %><br>
+<br>
+<%= render @thrift %>
+<hr/>
+
+<div>
+  <!--<%= link_to "Edit", edit_thrift_path(@thrift),class:"btn btn-secondary" %>-->
+  <br>
+  <br>
+  <!--<%= button_to "Delete Thrift", @thrift, method: :delete, class:"btn btn-danger" %>-->
+</div>
+
+<div class="container">
+  <h2>Finds at <%= @thrift.store%> </h2>
+  <br>
+  <% @posts.each_slice(5) do |post_group| %>
+    <div class="row">
+      <% post_group.each do |post| %>
+        <div class="col-12 col-md-2 mb-4 custom-col">
+          <div class="card">
+            <% if post.images.attached? %>
+              <% cover_image = post.images.first %>
+              <%= link_to image_tag(cover_image, class: "card-img-top", style: "height: 300px; object-fit: cover;"), post_path(post) %>
+            <% end %>
+            <div class="card-body">
+              <h5 class="card-title"><%= post.content %></h5>
+              <p class="card-text"><%= post.created_at.strftime("%B %d, %Y") %> • <%= link_to post.user.username, profile_path(post.user), class:"card-text", style:"text-decoration:none"%></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+
+<style>
+  @media (min-width: 768px) {
+    .custom-col {
+      flex: 0 0 20%;
+      max-width: 20%;
+    }
+  }
+
+  .card {
+    transition: transform 0.35s, box-shadow 0.35s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .card:hover {
+    transform: scale(1.01);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-img-top {
+    border-top-left-radius: calc(0.25rem - 1px);
+    border-top-right-radius: calc(0.25rem - 1px);
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+
+  .card-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+
+  .container {
+    margin-top: 2rem;
+  }
+
+.carousel-wrapper {
+  border: 2px solid #444; /* Adds a solid border around the carousel */
+  border-radius: 10px; /* Optional: Adds rounded corners to the border */
+  padding: 12px; /* Optional: Adds padding inside the border for spacing */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Optional: Adds a shadow to the border */
+}
+.btn:hover {
+    background-color: #5e6681;
+    color: #ffeba7;
+    box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+  } 
+  .btn {
+    margin: 1rem 0;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: .8em;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+    background-color: #ffeba7;
+    color: #5e6681;
+    box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+    transition: all .3s ease-in-out;
+  }
+  .btn-link {
+    color: #f5f5f5;
+    display: block;
+    font-size: .75em;
+    transition: color .3s ease-out;
+  }
+</style>
+ <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+
+      form.addEventListener('submit', function(event) {
+        const fileInput = document.querySelector('#thrift_images');
+        if (fileInput.files.length === 0) {
+          event.preventDefault();
+          alert('Please upload at least one image.');
+        }
+      });
+    });
+  </script>
+

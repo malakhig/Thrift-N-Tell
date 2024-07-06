@@ -1,0 +1,165 @@
+<h1 > <%= current_user.username %></h1>
+<%= avatar_for(current_user, 120) %>
+
+<% if @user.present? && current_user.following?(@user) %>
+<% if current_user.following?(@user)%>
+<%= button_to "Unfollow", unfollow_path(@user) %>
+<% elsif current_user.sent_follow_request_to?(@user)%>
+<%= button_to "Cancel follow request", cancel_path(@user)%>
+<% else %>
+<%= button_to "Follow", follow_path(@user)%>
+<%end%>
+<%end%>
+
+
+
+
+
+
+
+
+
+
+<div class="container">
+  <div id="posts">
+    <% user_posts = @posts.select { |post| post.user_id == current_user.id } %>
+    <% user_posts.each_slice(2) do |post_group| %>
+      <div class="row justify-content-center mb-4 no-gutters">
+        <% post_group.each do |post| %>
+          <div class="col-4">
+            <div class="card position-relative" style="width: 102%; margin-bottom: 10px;">
+              <div class="card-body">
+                <div id="<%= dom_id(post) %>">
+                  <p>
+                    
+                    <strong>
+                    <%= avatar_for(current_user, 50) %>
+                    <%= current_user.username %>
+                    </strong>
+                  </p>
+                  <% if post.images.attached? %>
+                    <% cover_image = post.images.first %>
+                    <%= link_to image_tag(cover_image, height: "525px"), post_path(post) %>
+                  <% end %>
+
+                  <p class="mt-3">
+                    <strong>Content:</strong> <%= post.content %>
+                  </p>
+                  <strong>Purchased?</strong>
+                  <% if post.purchased %>
+                    <%= "Yes" %>
+                  <% else %>
+                    <%= "No" %>
+                  <% end %>
+                  <br>
+                  <strong>Size:</strong>
+                  <%= post.size %>
+                  <p>
+                    <strong>Found at:</strong> <%= link_to post.thrift.store, thrift_path(post.thrift_id) %>
+                  </p>
+                </div>
+                <p>
+                  <%= link_to "Show this Find", post_path(post), class: "btn btn-primary" %>
+                </p>
+              </div>
+              <br>
+              <div class="card-footer">
+                <p class="mb-0">
+                  <%= post.created_at.strftime("%m/%d/%Y") %>
+                </p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+
+
+<style>
+  .button {
+  --main-focus: #2d8cf0;
+  --font-color: #323232;
+  --bg-color-sub: #dedede;
+  --bg-color: #eee;
+  --main-color: #323232;
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--main-color);
+  box-shadow: 4px 4px var(--main-color);
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.button, .button__icon, .button__text {
+  transition: all 0.3s;
+}
+
+.button .button__text {
+  transform: translateX(1px);
+  color: var(--font-color);
+  font-weight: 1;
+}
+
+.button .button__icon {
+  position: absolute;
+  transform: translateX(109px);
+  height: 100%;
+  width: 39px;
+  background-color: var(--bg-color-sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button .svg {
+  width: 20px;
+  fill: var(--main-color);
+}
+
+.button:hover {
+  background: var(--bg-color);
+}
+
+.button:hover .button__text {
+  color: transparent;
+}
+
+.button:hover .button__icon {
+  width: 148px;
+  transform: translateX(0);
+}
+
+.button:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px var(--main-color);
+}
+  .card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+.card {
+  transition: transform .35s;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.card-footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: lightgrey;
+  border-top: none;
+  padding: 1;
+}
+.card-footer p {
+  margin: 0;
+}
+
+</style>

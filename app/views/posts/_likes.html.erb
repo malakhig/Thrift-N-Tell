@@ -1,0 +1,62 @@
+<% if post.nil? %>
+  <p>Post is nil!</p>
+<% else %>
+  <%= link_to pluralize(post.get_upvotes.size, 'Like'), "#LikeModal#{post.id}", "data-bs-toggle" => "modal", class: "hover-underline", style: "color: ; text-decoration: none; " %>
+<% end %>
+
+
+
+
+ <div class="modal fade" id="LikeModal<%= post.id %>" tabindex="-1" aria-labelledby="exampleModalLabel<%= post.id %>" aria-hidden="true">
+  <div class="modal-dialog   modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel<%= post.id %>">Likes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body  modal-body-scrollable">
+        <% post.votes_for.up.by_type(User).voters.each do |user| %>
+          <div class="d-flex align-items-center mb-3">
+            <%= link_to avatar_for(user, 55), profile_path(user), class: "me-2" %>
+            <%= link_to user.username, profile_path(user), style: "color: white; text-decoration: none;" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-body-scrollable {
+        max-height: 275px; /* Adjust height as needed */
+        overflow-y: auto;
+      }
+ body.dark-mode .modal {
+        background-color: none; /* Dark background color */
+        color: white;           /* Light text color */
+        border: 1px solid #444; /* Border color */
+      }
+
+/* Optional: Additional styles to improve appearance in dark mode */
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  background-color: #444; /* Slightly lighter background for header and footer */
+  border-bottom: 1px solid #555; /* Header border */
+  border-top: 1px solid #555;    /* Footer border */
+}
+
+body.dark-mode .modal-content {
+  background-color: #333; /* Ensuring modal content has a dark background */
+}
+
+body.dark-mode .modal-body {
+  color: white; /* Ensuring modal body text is light */
+}
+.moda-body {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+    </style>

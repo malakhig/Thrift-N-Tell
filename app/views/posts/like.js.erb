@@ -1,0 +1,5 @@
+// Update the like count
+$("#like-count").html("<%= j render 'posts/likes', post: @post %>");
+
+// Update the like/unlike link
+$("#like-link").html("<%= j render 'posts/like_link', post: @post %>");

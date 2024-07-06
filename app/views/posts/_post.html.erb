@@ -1,0 +1,197 @@
+
+<div class="container  mt-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-4">
+      <div class="card mb-4 position-relative">
+        <div class="card-body">
+          <div id="<%= dom_id(post) %>">
+            <div class="d-flex flex-column">
+
+              <p>
+                <strong>
+                  <%= avatar_for(User.find(post.user_id), 50) %>
+                  <%= User.find(post.user_id).username %>
+                </strong>
+              </p>
+
+<!-- Three dot Icon-->
+    <% if @post.user_id == current_user.id %>
+  <span class="position-absolute top-0 end-0 p-2 dropup">
+    <button class="btn btn-light" data-bs-toggle="dropdown" aria-expanded="true">
+      <i class="material-icons">more_horiz</i>
+    </button>
+    <!-- Dropdown menu -->
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><%= link_to "<i class='material-icons'>edit</i> Edit this post".html_safe, edit_post_path(@post), class: "dropdown-item" %></li> 
+      <li><%= button_to "<i class='material-icons'>delete</i> Delete".html_safe, @post, method: :delete, class: "dropdown-item", data: { confirm: "Are you sure?" }, form: { class: "d-inline" } %></li>
+    </ul>
+  </span>
+<% else %>
+  <span class="position-absolute top-0 end-0 p-2 dropup">
+    <button class="btn btn-light" data-bs-toggle="dropdown" aria-expanded="true">
+      <i class="material-icons">more_horiz</i>
+    </button>
+    <!-- Dropdown menu -->
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><button class="dropdown-item" type="button" disabled><i class="material-icons">block</i> You are not authorized to edit or delete this post.</button></li>
+    </ul>
+  </span>
+<% end %>
+
+              <% if post.images.attached? %>
+                <% if post.images.size > 1 %>
+                  <div id="carouselExample<%= post.id %>" class="carousel slide position-relative" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                      <% post.images.each_with_index do |image, index| %>
+                        <div class="carousel-item <%= 'active' if index == 0 %>">
+                          
+                          <%= image_tag(image, class: "img-fluid d-block rounded") %>
+                          <!-- Size text positioned absolutely -->
+                          <div class="position-absolute top-0 start-0 p-2 size-overlay">
+                           <%= post.size %>
+                          </div>
+
+                        </div>
+                      <% end %>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample<%= post.id %>" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample<%= post.id %>" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
+                  </div>
+                <% else %>
+                  <div class="position-relative">
+                    <%= image_tag(post.images.first, class: "img-fluid d-block rounded") %>
+                    <!-- Size text positioned absolutely -->
+                    <div class="position-absolute top-0 start-0 p-2 size-overlay">
+                     <%= post.size %>
+                    </div>
+                    
+                  </div>
+                <% end %>
+              <% end %>
+              <% if post.content %>
+              <p class="mt-3">
+                <strong><%= User.find(post.user_id).username%></strong>
+                
+                <%= post.content %>
+                <br>
+                </p>
+                <%end%>
+                <p>
+                <strong>Purchased?</strong>
+                <%= post.purchased ? "Yes" : "No" %>
+              </p>
+              
+              <p>
+                <strong>Found at:</strong> <%= link_to post.thrift.store, thrift_path(post.thrift_id), class: "hover-underline" %>
+              </p>
+              <div class="like-container" style="display: flex; align-items: center;">
+                  <div id="like-count" style="margin-right: 10px;">
+                    <%= render 'posts/likes', post: post %>
+                  </div>
+                  <div id="like-link">
+                    <%= render 'posts/like_link', post: post %>
+                  </div>
+                </div>
+          </div>
+        </div>
+        <br>
+        <div class="card-footer">
+          <p class="mb-0">
+            <%= post.created_at.strftime("%m/%d/%Y") %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<div class="container">
+  <%= render 'comments/form', post:@post %>
+  <% @comments.each do |comment| %>
+   <%= render 'comments/comment', post:@post, comment: comment %>
+   <% end %>
+</div>
+
+<style>
+  .card-footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: none;
+  border-top: none;
+  padding: 1;
+}
+  .size-overlay {
+    color: white; /* Set text color to white */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black; /* Add a text shadow for better readability */
+  }
+  .dropdown-menu {
+  z-index: 1000; /* or any higher value */
+}
+.custom-textarea {
+  background-color: #333; /* Background color */
+  color: white;              /* Text color */
+  border: 1px solid #555;    /* Optional: Border color */
+  padding: 10px;             /* Optional: Padding */
+  border-radius: 4px;        /* Optional: Border radius */
+}
+.btn:hover {
+    background-color: #5e6681;
+    color: #ffeba7;
+    box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+  } 
+  .btn {
+    margin: 1rem 0;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: .8em;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+    background-color: #ffeba7;
+    color: #5e6681;
+    box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+    transition: all .3s ease-in-out;
+  }
+  .btn-link {
+    color: #f5f5f5;
+    display: block;
+    font-size: .75em;
+    transition: color .3s ease-out;
+  }
+  .hover-underline {
+    color: white;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  .hover-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    display: block;
+    margin-top: 0px;
+    left: 0;
+    background: white;
+    transition: width 0.3s ease;
+  }
+  .hover-underline:hover::after {
+    width: 100%;
+  }
+</style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
